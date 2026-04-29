@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Persona Chat — Talk to Scaler Founders</title>
+  <meta name="description" content="Chat with AI personas of Anshuman Singh, Abhimanyu Saxena, and Kshitij Mishra from Scaler Academy." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/src/style.css" />
+</head>
+<body>
+  <div id="app">
+    <header class="app-header" id="app-header">
+      <div class="header-content">
+        <div class="logo-section">
+          <div class="logo-icon" id="logo-icon">💬</div>
+          <h1 class="app-title">PersonaChat</h1>
+        </div>
+        <div class="header-badge"><span class="badge-dot" id="badge-dot"></span><span class="badge-text">AI Powered</span></div>
+      </div>
+    </header>
+    <nav class="persona-switcher" id="persona-switcher" aria-label="Select persona">
+      <button class="persona-tab active" data-persona="anshuman" id="tab-anshuman">
+        <div class="tab-avatar" id="avatar-anshuman">AS</div>
+        <div class="tab-info"><span class="tab-name">Anshuman Singh</span><span class="tab-role">Co-founder &amp; CTO</span></div>
+        <div class="tab-active-indicator"></div>
+      </button>
+      <button class="persona-tab" data-persona="abhimanyu" id="tab-abhimanyu">
+        <div class="tab-avatar" id="avatar-abhimanyu">AX</div>
+        <div class="tab-info"><span class="tab-name">Abhimanyu Saxena</span><span class="tab-role">Co-founder &amp; CEO</span></div>
+        <div class="tab-active-indicator"></div>
+      </button>
+      <button class="persona-tab" data-persona="kshitij" id="tab-kshitij">
+        <div class="tab-avatar" id="avatar-kshitij">KM</div>
+        <div class="tab-info"><span class="tab-name">Kshitij Mishra</span><span class="tab-role">Head of Instructors</span></div>
+        <div class="tab-active-indicator"></div>
+      </button>
+    </nav>
+    <main class="chat-area" id="chat-area">
+      <div class="welcome-screen" id="welcome-screen">
+        <div class="welcome-avatar" id="welcome-avatar">AS</div>
+        <h2 class="welcome-title" id="welcome-title">Chat with Anshuman Singh</h2>
+        <p class="welcome-subtitle" id="welcome-subtitle">Co-founder of Scaler &amp; InterviewBit · Ex-Facebook Engineer · IIIT Hyderabad</p>
+        <p class="welcome-desc" id="welcome-desc">Ask about building products, scaling startups, tech hiring, or education.</p>
+      </div>
+      <div class="messages-container" id="messages-container"></div>
+      <div class="typing-indicator" id="typing-indicator" style="display:none;">
+        <div class="typing-avatar" id="typing-avatar">AS</div>
+        <div class="typing-bubble"><div class="typing-dots"><span></span><span></span><span></span></div></div>
+      </div>
+    </main>
+    <div class="chips-container" id="chips-container"><div class="chips-scroll" id="chips-scroll"></div></div>
+    <footer class="input-bar" id="input-bar">
+      <div class="input-wrapper">
+        <textarea id="message-input" class="message-input" placeholder="Ask Anshuman anything..." rows="1" aria-label="Type your message"></textarea>
+        <button class="send-button" id="send-button" aria-label="Send message" disabled>
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M3.5 10L16.5 3.5L10 16.5L8.5 11.5L3.5 10Z" fill="currentColor" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/></svg>
+        </button>
+      </div>
+      <p class="input-disclaimer">Responses are AI-generated personas based on public info.</p>
+    </footer>
+  </div>
+  <script type="module" src="/src/main.js"></script>
+</body>
+</html>
