@@ -22,7 +22,7 @@ Built with Vite + Vanilla JS + Gemini 2.0 Flash API.
 
 ## 🚀 Live Demo
 
-🔗 **[View Live App](YOUR_DEPLOYED_URL_HERE)**
+🔗 **[View Live App](https://persona-chatbot-eosin.vercel.app/)**
 
 ---
 
