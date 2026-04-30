@@ -2,7 +2,7 @@
 
 A premium AI chatbot that lets you have real conversations with three Scaler Academy / InterviewBit personalities: **Anshuman Singh**, **Abhimanyu Saxena**, and **Kshitij Mishra**.
 
-Built with Vite + Vanilla JS + Gemini 2.0 Flash API.
+Built with Vite + Vanilla JS + Gemini 2.5 Flash API.
 
 ![PersonaChat Screenshot](https://img.shields.io/badge/status-live-brightgreen)
 
@@ -33,7 +33,7 @@ Built with Vite + Vanilla JS + Gemini 2.0 Flash API.
 | Frontend | HTML + Vanilla JS + CSS |
 | Build Tool | Vite |
 | Backend | Vercel Serverless Functions |
-| LLM | Google Gemini 2.0 Flash |
+| LLM | Google Gemini 2.5 Flash |
 | Styling | Vanilla CSS (glassmorphism dark theme) |
 | Font | Inter (Google Fonts) |
 
