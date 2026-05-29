@@ -1,5 +1,6 @@
 // ============================================
 // PERSONA CHAT — Main Application Logic
+// Copilot-Inspired UI with Home/Chat Screens
 // ============================================
 import { PERSONA_DATA } from './prompts.js';
 
@@ -7,91 +8,161 @@ import { PERSONA_DATA } from './prompts.js';
 let currentPersona = 'anshuman';
 const conversations = { anshuman: [], abhimanyu: [], kshitij: [] };
 let isLoading = false;
+let currentScreen = 'home'; // 'home' or 'chat'
 
-// --- DOM Elements ---
+// --- DOM Elements: Home Screen ---
 const app = document.getElementById('app');
+const homeScreen = document.getElementById('home-screen');
+const heroGreeting = document.getElementById('hero-greeting');
+const homeMessageInput = document.getElementById('home-message-input');
+const personaDropdownBtn = document.getElementById('persona-dropdown-btn');
+const personaDropdownText = document.getElementById('persona-dropdown-text');
+const personaPopover = document.getElementById('persona-popover');
+const homeChips = document.getElementById('home-chips');
+
+// --- DOM Elements: Chat Screen ---
+const chatScreen = document.getElementById('chat-screen');
 const chatArea = document.getElementById('chat-area');
 const messagesContainer = document.getElementById('messages-container');
-const welcomeScreen = document.getElementById('welcome-screen');
 const typingIndicator = document.getElementById('typing-indicator');
 const typingAvatar = document.getElementById('typing-avatar');
-const chipsScroll = document.getElementById('chips-scroll');
-const messageInput = document.getElementById('message-input');
+const chatMessageInput = document.getElementById('chat-message-input');
 const sendButton = document.getElementById('send-button');
-const welcomeAvatar = document.getElementById('welcome-avatar');
-const welcomeTitle = document.getElementById('welcome-title');
-const welcomeSubtitle = document.getElementById('welcome-subtitle');
-const welcomeDesc = document.getElementById('welcome-desc');
+const backBtn = document.getElementById('back-btn');
+const newChatBtn = document.getElementById('new-chat-btn');
+const chatHeaderAvatar = document.getElementById('chat-header-avatar');
+const chatHeaderName = document.getElementById('chat-header-name');
 
 // --- Initialization ---
 function init() {
   app.setAttribute('data-persona', currentPersona);
-  renderPersonaTabs();
-  renderChips();
-  updateWelcomeScreen();
-  setupEventListeners();
+  updateGreeting();
+  updatePersonaDropdown();
+  setupHomeListeners();
+  setupChatListeners();
+  setupPersonaCards();
+  setupPopoverListeners();
+  setupHomeChips();
 }
 
-// --- Persona Tabs ---
-function renderPersonaTabs() {
-  document.querySelectorAll('.persona-tab').forEach(tab => {
-    tab.addEventListener('click', () => {
-      const persona = tab.dataset.persona;
-      if (persona === currentPersona || isLoading) return;
-      switchPersona(persona);
+// --- Time-Based Greeting ---
+function updateGreeting() {
+  const hour = new Date().getHours();
+  let greeting;
+  if (hour < 12) greeting = 'Good morning';
+  else if (hour < 17) greeting = 'Good afternoon';
+  else greeting = 'Good evening';
+  heroGreeting.textContent = greeting;
+}
+
+// --- Persona Dropdown ---
+function updatePersonaDropdown() {
+  const p = PERSONA_DATA[currentPersona];
+  personaDropdownText.textContent = p.name;
+
+  document.querySelectorAll('.popover-option').forEach(opt => {
+    opt.classList.toggle('active', opt.dataset.persona === currentPersona);
+  });
+}
+
+function togglePopover() {
+  const isVisible = personaPopover.classList.contains('visible');
+  personaPopover.classList.toggle('visible', !isVisible);
+  personaDropdownBtn.classList.toggle('open', !isVisible);
+}
+
+function closePopover() {
+  personaPopover.classList.remove('visible');
+  personaDropdownBtn.classList.remove('open');
+}
+
+function setupPopoverListeners() {
+  personaDropdownBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    togglePopover();
+  });
+
+  document.querySelectorAll('.popover-option').forEach(opt => {
+    opt.addEventListener('click', () => {
+      const persona = opt.dataset.persona;
+      if (persona !== currentPersona) {
+        switchPersona(persona);
+      }
+      closePopover();
     });
   });
-  updateActiveTab();
-}
 
-function updateActiveTab() {
-  document.querySelectorAll('.persona-tab').forEach(tab => {
-    tab.classList.toggle('active', tab.dataset.persona === currentPersona);
+  // Close popover when clicking outside
+  document.addEventListener('click', (e) => {
+    if (!personaPopover.contains(e.target) && !personaDropdownBtn.contains(e.target)) {
+      closePopover();
+    }
   });
 }
 
+// --- Persona Cards ---
+function setupPersonaCards() {
+  document.querySelectorAll('.persona-card').forEach(card => {
+    card.addEventListener('click', () => {
+      const persona = card.dataset.persona;
+      if (persona !== currentPersona) {
+        switchPersona(persona);
+      }
+      navigateToChat();
+    });
+  });
+}
+
+// --- Home Chips ---
+function setupHomeChips() {
+  // The static chips map to persona-specific suggestions
+  homeChips.querySelectorAll('.home-chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+      if (isLoading) return;
+      // Use the chip text as the message
+      const chipText = chip.textContent.trim();
+      sendMessageFromHome(chipText);
+    });
+  });
+}
+
+// --- Switch Persona ---
 function switchPersona(persona) {
   currentPersona = persona;
   app.setAttribute('data-persona', persona);
-  updateActiveTab();
-  renderChips();
-  updateWelcomeScreen();
+  updatePersonaDropdown();
+  updateChatHeader();
+  chatMessageInput.placeholder = `Ask ${PERSONA_DATA[persona].name.split(' ')[0]} anything...`;
+}
+
+// --- Screen Navigation ---
+function navigateToChat() {
+  currentScreen = 'chat';
+  homeScreen.style.display = 'none';
+  chatScreen.style.display = 'flex';
+  updateChatHeader();
   renderMessages();
-  messageInput.placeholder = `Ask ${PERSONA_DATA[persona].name.split(' ')[0]} anything...`;
+  chatMessageInput.focus();
 }
 
-// --- Welcome Screen ---
-function updateWelcomeScreen() {
-  const p = PERSONA_DATA[currentPersona];
-  welcomeAvatar.textContent = p.initials;
-  welcomeTitle.textContent = `Chat with ${p.name}`;
-  welcomeSubtitle.textContent = p.subtitle;
-  welcomeDesc.textContent = p.description;
+function navigateToHome() {
+  currentScreen = 'home';
+  chatScreen.style.display = 'none';
+  homeScreen.style.display = 'flex';
+  homeMessageInput.value = '';
+  closePopover();
 }
 
-// --- Suggestion Chips ---
-function renderChips() {
+// --- Update Chat Header ---
+function updateChatHeader() {
   const p = PERSONA_DATA[currentPersona];
-  chipsScroll.innerHTML = p.chips.map(text =>
-    `<button class="chip" id="chip-${text.substring(0,15).replace(/\s+/g,'-').toLowerCase()}">${text}</button>`
-  ).join('');
-  chipsScroll.querySelectorAll('.chip').forEach(chip => {
-    chip.addEventListener('click', () => {
-      if (isLoading) return;
-      sendMessage(chip.textContent);
-    });
-  });
+  chatHeaderAvatar.textContent = p.initials;
+  chatHeaderName.textContent = p.name;
 }
 
 // --- Messages ---
 function renderMessages() {
   const msgs = conversations[currentPersona];
-  if (msgs.length === 0) {
-    welcomeScreen.style.display = 'flex';
-    messagesContainer.innerHTML = '';
-    return;
-  }
-  welcomeScreen.style.display = 'none';
   const p = PERSONA_DATA[currentPersona];
   messagesContainer.innerHTML = msgs.map((msg, i) => {
     const isUser = msg.role === 'user';
@@ -105,9 +176,6 @@ function renderMessages() {
 
 function appendMessage(role, content, error = false) {
   conversations[currentPersona].push({ role, content, error });
-  if (conversations[currentPersona].length === 1) {
-    welcomeScreen.style.display = 'none';
-  }
   const p = PERSONA_DATA[currentPersona];
   const isUser = role === 'user';
   const idx = conversations[currentPersona].length - 1;
@@ -146,14 +214,23 @@ function hideTyping() {
   typingIndicator.style.display = 'none';
 }
 
+// --- Send Message (from home) ---
+function sendMessageFromHome(text) {
+  const trimmed = text.trim();
+  if (!trimmed || isLoading) return;
+  navigateToChat();
+  // Small delay to let the DOM transition, then send
+  requestAnimationFrame(() => sendMessage(trimmed));
+}
+
 // --- Send Message ---
 async function sendMessage(text) {
   const trimmed = text.trim();
   if (!trimmed || isLoading) return;
 
   isLoading = true;
-  messageInput.value = '';
-  messageInput.style.height = 'auto';
+  chatMessageInput.value = '';
+  chatMessageInput.style.height = 'auto';
   sendButton.disabled = true;
 
   appendMessage('user', trimmed);
@@ -189,31 +266,60 @@ async function callAPI(persona, messages) {
   return data.reply;
 }
 
-// --- Input Handling ---
-function setupEventListeners() {
-  messageInput.addEventListener('input', () => {
-    // Auto-resize textarea
-    messageInput.style.height = 'auto';
-    messageInput.style.height = Math.min(messageInput.scrollHeight, 120) + 'px';
+// --- Home Event Listeners ---
+function setupHomeListeners() {
+  // Home input: auto-resize
+  homeMessageInput.addEventListener('input', () => {
+    homeMessageInput.style.height = 'auto';
+    homeMessageInput.style.height = Math.min(homeMessageInput.scrollHeight, 100) + 'px';
+  });
+
+  // Home input: Enter to send
+  homeMessageInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      sendMessageFromHome(homeMessageInput.value);
+    }
+  });
+}
+
+// --- Chat Event Listeners ---
+function setupChatListeners() {
+  // Chat input: auto-resize
+  chatMessageInput.addEventListener('input', () => {
+    chatMessageInput.style.height = 'auto';
+    chatMessageInput.style.height = Math.min(chatMessageInput.scrollHeight, 120) + 'px';
     updateSendButton();
   });
 
-  messageInput.addEventListener('keydown', (e) => {
+  // Chat input: Enter to send
+  chatMessageInput.addEventListener('keydown', (e) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
-      sendMessage(messageInput.value);
+      sendMessage(chatMessageInput.value);
     }
   });
 
+  // Send button
   sendButton.addEventListener('click', () => {
-    sendMessage(messageInput.value);
+    sendMessage(chatMessageInput.value);
   });
 
-  messageInput.placeholder = `Ask ${PERSONA_DATA[currentPersona].name.split(' ')[0]} anything...`;
+  // Back button
+  backBtn.addEventListener('click', navigateToHome);
+
+  // New chat button: clears conversation and goes home
+  newChatBtn.addEventListener('click', () => {
+    conversations[currentPersona] = [];
+    messagesContainer.innerHTML = '';
+    navigateToHome();
+  });
+
+  chatMessageInput.placeholder = `Ask ${PERSONA_DATA[currentPersona].name.split(' ')[0]} anything...`;
 }
 
 function updateSendButton() {
-  sendButton.disabled = !messageInput.value.trim() || isLoading;
+  sendButton.disabled = !chatMessageInput.value.trim() || isLoading;
 }
 
 // --- Start ---
